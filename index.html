@@ -526,7 +526,20 @@ window.addEventListener('load', () => {
                 createHeartEffect(e.clientX, e.clientY);
             }
         });
+window.addEventListener('load', () => {
+  const bg = document.getElementById('bg-music');
+  if (!bg) return;
+  bg.volume = 0;
+  bg.play().catch(() => {}); // Bị chặn cũng không sao
+});
 
+// Khi người dùng chạm lần đầu → tăng âm lượng
+document.addEventListener('touchstart', function startMusic() {
+  const bg = document.getElementById('bg-music');
+  bg.volume = 0.9;
+  bg.play();
+  document.removeEventListener('touchstart', startMusic);
+});
         for (let i = 0; i < 4; i++) { setTimeout(createLantern, i * 600); }
 
     </script>
