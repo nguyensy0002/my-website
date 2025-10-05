@@ -484,7 +484,32 @@ createPopupHearts();
             startMusic();
             document.removeEventListener('pointerdown', onceStart);
         });
-
+window.addEventListener('load', () => {
+    const bg = document.getElementById('bg-music');
+    if (!bg) return;
+    bg.volume = 0;
+    bg.play().then(() => {
+        let v = 0;
+        const fade = setInterval(() => {
+            v += 0.05;
+            if (v >= 0.9) {
+                v = 0.9;
+                clearInterval(fade);
+            }
+            bg.volume = v;
+        }, 120);
+        musicToggle.textContent = '🔊';
+        const hint = document.getElementById('hint');
+        hint.style.opacity = '1';
+        setTimeout(() => hint.style.opacity = '0', 3500);
+    }).catch(err => {
+        console.log("⚠️ Trình duyệt chặn autoplay:", err);
+        // Nếu bị chặn, hiện hướng dẫn bật nhạc
+        const hint = document.getElementById('hint');
+        hint.textContent = "🎵 Nhấn màn hình để bật nhạc nhé!";
+        hint.style.opacity = '1';
+    });
+});
         // Lắng nghe sự kiện click/touch trên toàn bộ tài liệu (trừ đèn lồng)
         document.addEventListener('click', (e) => {
             // Chỉ tạo trái tim nếu không click vào đèn lồng (vì đèn lồng đã có sự kiện riêng)
