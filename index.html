@@ -245,9 +245,8 @@
         </div>
     </div>
 
-    <audio id="bg-music" loop>
-        <!-- Thay file nhạc ở đây -->
-        <source src="/nhac.mp4" type="audio/mp3">
+    <audio id="bg-music" preload="auto" playsinline>
+        <source src="/nhac.mp4" type="audio/mp4">
     </audio>
 
     <script>
@@ -290,6 +289,30 @@
                 x: startX, y: startY, vx: speed + 6, vy: speed / 2, len: Math.random() * 120 + 100, a: 1
             });
         }
+
+
+        function startMusic() {
+            if (musicStarted) return;
+            bg.volume = 0.8;
+            bg.play().then(() => {
+                musicStarted = true;
+                musicToggle.textContent = '🔊';
+                const hint = document.getElementById('hint');
+                hint.style.opacity = '1';
+                setTimeout(() => hint.style.opacity = '0', 3000);
+            }).catch(err => {
+                console.log("Autoplay blocked:", err);
+            });
+        }
+
+        // Lần đầu chạm hoặc click
+        document.addEventListener('click', () => {
+            startMusic();
+        });
+
+        document.addEventListener('touchstart', () => {
+            startMusic();
+        });
         function createPopupHearts() {
             const popup = document.getElementById("wish-popup");
             if (!popup) return;
@@ -418,7 +441,7 @@
                 const wishPopup = document.getElementById('wish-popup');
                 wishPopup.textContent = wishes[Math.floor(Math.random() * wishes.length)];
                 wishPopup.style.display = 'block';
-createPopupHearts();
+                createPopupHearts();
                 // 2. KÍCH HOẠT HIỆU ỨNG TRÁI TIM (Đoạn code mới)
                 const rect = lantern.getBoundingClientRect();
 
@@ -484,32 +507,7 @@ createPopupHearts();
             startMusic();
             document.removeEventListener('pointerdown', onceStart);
         });
-window.addEventListener('load', () => {
-    const bg = document.getElementById('bg-music');
-    if (!bg) return;
-    bg.volume = 0;
-    bg.play().then(() => {
-        let v = 0;
-        const fade = setInterval(() => {
-            v += 0.05;
-            if (v >= 0.9) {
-                v = 0.9;
-                clearInterval(fade);
-            }
-            bg.volume = v;
-        }, 120);
-        musicToggle.textContent = '🔊';
-        const hint = document.getElementById('hint');
-        hint.style.opacity = '1';
-        setTimeout(() => hint.style.opacity = '0', 3500);
-    }).catch(err => {
-        console.log("⚠️ Trình duyệt chặn autoplay:", err);
-        // Nếu bị chặn, hiện hướng dẫn bật nhạc
-        const hint = document.getElementById('hint');
-        hint.textContent = "🎵 Nhấn màn hình để bật nhạc nhé!";
-        hint.style.opacity = '1';
-    });
-});
+
         // Lắng nghe sự kiện click/touch trên toàn bộ tài liệu (trừ đèn lồng)
         document.addEventListener('click', (e) => {
             // Chỉ tạo trái tim nếu không click vào đèn lồng (vì đèn lồng đã có sự kiện riêng)
@@ -526,20 +524,14 @@ window.addEventListener('load', () => {
                 createHeartEffect(e.clientX, e.clientY);
             }
         });
-window.addEventListener('load', () => {
-  const bg = document.getElementById('bg-music');
-  if (!bg) return;
-  bg.volume = 0;
-  bg.play().catch(() => {}); // Bị chặn cũng không sao
-});
 
-// Khi người dùng chạm lần đầu → tăng âm lượng
-document.addEventListener('touchstart', function startMusic() {
-  const bg = document.getElementById('bg-music');
-  bg.volume = 0.9;
-  bg.play();
-  document.removeEventListener('touchstart', startMusic);
-});
+        // Khi người dùng chạm lần đầu → tăng âm lượng
+        document.addEventListener('touchstart', function startMusic() {
+            const bg = document.getElementById('bg-music');
+            bg.volume = 0.9;
+            bg.play();
+            document.removeEventListener('touchstart', startMusic);
+        });
         for (let i = 0; i < 4; i++) { setTimeout(createLantern, i * 600); }
 
     </script>
