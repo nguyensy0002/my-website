@@ -62,6 +62,26 @@
             pointer-events: auto;
             width: 40px;
             user-select: none;
+            filter: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 0 10px rgba(255, 255, 180, 0.7));
+        }
+
+        .popup-heart {
+            position: absolute;
+            font-size: 18px;
+            opacity: 0.9;
+            animation: floatHeart 1.5s ease-out forwards;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-40px) scale(0.8);
+                opacity: 0;
+            }
         }
 
         @keyframes swing {
@@ -100,6 +120,7 @@
             text-align: center;
             max-width: 90%;
             box-sizing: border-box;
+
         }
 
         #hint {
@@ -137,6 +158,52 @@
             margin-left: 10px;
             color: #fff;
             opacity: 0.95;
+        }
+
+        /* Định nghĩa hình trái tim */
+        .heart-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--accent);
+            /* Màu cam/hồng */
+            transform: rotate(-45deg);
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        /* Tạo hình trái tim */
+        .heart-effect::before,
+        .heart-effect::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--accent);
+        }
+
+        .heart-effect::before {
+            top: -10px;
+            left: 0;
+        }
+
+        .heart-effect::after {
+            top: 0;
+            left: 10px;
+        }
+
+        /* Hiệu ứng bay lên và biến mất */
+        @keyframes heart-rise {
+            0% {
+                transform: translate(0, 0) rotate(-45deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--heart-drift), -150px) rotate(-45deg);
+                opacity: 0;
+            }
         }
 
         @media (max-width:600px) {
@@ -223,6 +290,25 @@
                 x: startX, y: startY, vx: speed + 6, vy: speed / 2, len: Math.random() * 120 + 100, a: 1
             });
         }
+        function createPopupHearts() {
+            const popup = document.getElementById("wish-popup");
+            if (!popup) return;
+
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement("span");
+                heart.className = "popup-heart";
+                heart.textContent = ["💖", "💗", "💞", "💘"][Math.floor(Math.random() * 4)];
+
+                // Vị trí ngẫu nhiên trong popup
+                heart.style.left = `${Math.random() * 90 + 5}%`;
+                heart.style.top = `${Math.random() * 80 + 10}%`;
+
+                popup.appendChild(heart);
+
+                // Xóa tim sau khi kết thúc animation
+                setTimeout(() => heart.remove(), 1500);
+            }
+        }
         function drawMeteors() {
             for (let i = meteors.length - 1; i >= 0; i--) {
                 const m = meteors[i];
@@ -255,30 +341,47 @@
         const lanternContainer = document.getElementById('lantern-container');
         //Thay lời chúc ở đây
         const wishes = [
-            "Anh chúc mọi điều tốt đẹp nhất đến với em.",
-            "Trăng tròn rồi, anh chỉ muốn nắm tay em.",
-            "Em làm tim anh rung rinh mỗi lần cười.",
-            "Có em cạnh bên, mùa trăng nào cũng đặc biệt.",
-            "Trung Thu này không cần bánh, chỉ cần em ở cạnh anh là đủ.",
-            "Người ta ngắm trăng, còn anh chỉ muốn ngắm em thôi.",
-            "Trăng rằm tròn vành vạnh, còn tim anh lại khuyết vì nhớ em.",
-            "Nếu được ước một điều đêm Trung Thu, anh ước được đi dạo với em dưới trăng.",
-            "Ánh trăng vàng không sáng bằng nụ cười của em đâu.",
-            "Bánh nướng thì nhân trứng, còn anh thì nhân... duyên với em.",
-            "Trung Thu năm nay, anh không cần quà, chỉ cần lời chúc từ em thôi.",
-            "Người ta nói trăng chỉ tròn một đêm, còn anh muốn yêu em trọn đời.",
-            "Thay vì ngắm đèn lồng, anh muốn cùng em thắp sáng tình mình.",
-            "Nếu trăng là em, anh nguyện làm bầu trời để mãi ngắm nhìn.",
-            "Tết Trung Thu là tết đoàn viên, còn anh chỉ muốn ‘đoàn’ cùng em.",
-            "Trăng có thể tròn khuyết theo thời gian, nhưng tình anh dành cho em thì trọn mãi.",
-            "Người ta phát bánh, còn anh muốn phát tín hiệu yêu thương đến em.",
-            "Trung Thu này, em có muốn cùng anh đi rước đèn không?",
-            "Dưới ánh trăng vàng, anh chỉ muốn được gọi em là ‘người thương’.",
-            "Nếu trăng là lý do để người ta nhớ nhau, thì em chính là lý do để anh mỉm cười mỗi ngày."
+            "Chúc em có một Trung Thu thật an yên và nhiều niềm vui 🍂🌕",
+            "Ánh trăng đêm nay cũng phải ghen với nụ cười của em ✨🌙 ",
+            "Trung Thu này, chỉ mong em luôn bình yên và được yêu thương 🌸🍰 ",
+            "Có em, đêm trăng nào cũng trở nên dịu dàng và ấm áp hơn 🌕💫",
+            "Mong trăng mang đến cho em những điều ngọt ngào nhất 🍬🌙 ",
+            "Chúc em Trung Thu vui vẻ 💖"
         ];
 
         let lanternClickable = true;
+        // Hàm tạo hiệu ứng trái tim, nhận toạ độ (x, y) làm đầu vào
+        function createHeartEffect(x, y) {
+            // Tạo ngẫu nhiên từ 1 đến 3 trái tim
+            const numHearts = Math.floor(Math.random() * 3) + 1;
 
+            for (let i = 0; i < numHearts; i++) {
+                const heart = document.createElement("div");
+                heart.className = "heart-effect";
+
+                // Thiết lập vị trí ban đầu là vị trí click/chạm
+                // Thêm một chút ngẫu nhiên để các trái tim không chồng lên nhau
+                const initialX = x + (Math.random() * 10 - 5);
+                const initialY = y + (Math.random() * 10 - 5);
+
+                heart.style.left = `${initialX}px`;
+                heart.style.top = `${initialY}px`;
+
+                // Tạo hiệu ứng trôi dạt ngẫu nhiên
+                const drift = Math.random() * 80 - 40; // Trôi sang trái/phải 40px
+
+                // Đặt biến CSS cho animation
+                heart.style.setProperty('--heart-drift', `${drift}px`);
+
+                // Bắt đầu animation với độ trễ nhỏ
+                heart.style.animation = `heart-rise 1.5s ease-out forwards ${i * 0.05}s`;
+
+                document.body.appendChild(heart);
+
+                // Xóa trái tim sau khi animation kết thúc
+                setTimeout(() => heart.remove(), 1800);
+            }
+        }
         function createLantern() {
             const lantern = document.createElement("img");
             //Thay ảnh đèn lồng ở đây
@@ -310,14 +413,43 @@
 
             lantern.addEventListener("click", (e) => {
                 e.stopPropagation();
+
+                // 1. HIỆN LỜI CHÚC (Đoạn code cũ của bạn)
                 const wishPopup = document.getElementById('wish-popup');
                 wishPopup.textContent = wishes[Math.floor(Math.random() * wishes.length)];
                 wishPopup.style.display = 'block';
+createPopupHearts();
+                // 2. KÍCH HOẠT HIỆU ỨNG TRÁI TIM (Đoạn code mới)
+                const rect = lantern.getBoundingClientRect();
+
+                // Tạo 3 trái tim nhỏ bay lên
+                for (let i = 0; i < 3; i++) {
+                    const heart = document.createElement("div");
+                    heart.className = "heart-effect";
+
+                    // Thiết lập vị trí ban đầu là vị trí của đèn lồng
+                    heart.style.left = `${rect.left + rect.width / 2}px`;
+                    heart.style.top = `${rect.top + rect.height / 2}px`;
+
+                    // Tạo hiệu ứng trôi dạt ngẫu nhiên
+                    const drift = Math.random() * 60 - 30; // Trôi sang trái/phải 30px
+
+                    // Đặt biến CSS cho animation
+                    heart.style.setProperty('--heart-drift', `${drift}px`);
+
+                    // Bắt đầu animation
+                    heart.style.animation = `heart-rise 1.5s ease-out forwards ${i * 0.1}s`;
+
+                    document.body.appendChild(heart);
+
+                    // Xóa trái tim sau khi animation kết thúc
+                    setTimeout(() => heart.remove(), 1800);
+                }
             });
 
         }
 
-        setInterval(createLantern, 500);
+        setInterval(createLantern, 200);
 
         const bg = document.getElementById('bg-music');
         const musicToggle = document.getElementById('musicToggle');
@@ -353,10 +485,20 @@
             document.removeEventListener('pointerdown', onceStart);
         });
 
+        // Lắng nghe sự kiện click/touch trên toàn bộ tài liệu (trừ đèn lồng)
         document.addEventListener('click', (e) => {
+            // Chỉ tạo trái tim nếu không click vào đèn lồng (vì đèn lồng đã có sự kiện riêng)
+            // Hoặc nếu lời chúc đang hiện thì ẩn nó đi
             const pop = document.getElementById('wish-popup');
             if (pop && pop.style.display === 'block') {
                 pop.style.display = 'none';
+                return; // Không tạo trái tim khi đang đóng popup
+            }
+
+            // Kiểm tra xem đối tượng click có phải là đèn lồng hay không
+            if (!e.target.classList.contains('lantern') && !e.target.closest('#musicToggle') && !e.target.closest('#bg-music')) {
+                // Lấy toạ độ con trỏ/điểm chạm
+                createHeartEffect(e.clientX, e.clientY);
             }
         });
 
